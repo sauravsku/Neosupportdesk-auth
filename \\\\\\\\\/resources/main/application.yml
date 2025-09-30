@@ -1,0 +1,50 @@
+spring:
+  application:
+    name: CentNeoSupportDeskAuthSvc
+  profiles:
+    active: dev
+  mvc:
+    servlet:
+      path: /api
+
+  redis:
+    host: localhost
+    port: 6379
+
+  ldap:
+    urls: ldap://ldap.forumsys.com:389
+    base: dc=example,dc=com
+    username: cn=read-only-admin,dc=example,dc=com
+    password: password
+    user-dn-patterns: uid={0},dc=example,dc=com
+
+#  security:
+#    ldap:
+#      user-dn-patterns: uid={0},ou=APPSUSER
+
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+
+server:
+  port: 9002
+
+jwt:
+  alg: RS256
+  private-key-file: /Users/centralbankofindia/Desktop/CBI/Project/Cent Neo Support Desk/CentNeoSupportDeskAuthSvc/jwt_private_key_pkcs8.pem
+  public-key-file: /Users/centralbankofindia/Desktop/CBI/Project/Cent Neo Support Desk/CentNeoSupportDeskAuthSvc/jwt_public_key.pem
+  issuer: centneo
+  access-ttl-ms: 18000000
+  refresh-ttl-ms: 86400000
+
+logging:
+  level:
+    org.springframework: INFO
+    com.centNeo: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.ldap: TRACE
+    org.springframework.security.ldap: TRACE
+#    com.zaxxer.hikari: TRACE
+#    org.hibernate.SQL: DEBUG
+#    org.hibernate.type.descriptor.sql: TRACE
+#    org.hibernate.orm.connections.pooling: DEBUG

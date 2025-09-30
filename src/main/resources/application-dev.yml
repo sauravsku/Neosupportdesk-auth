@@ -1,0 +1,49 @@
+spring:
+  datasource:
+    read:
+      url: jdbc:oracle:thin:@localhost:1521/XEPDB1
+      username: centneosupportauth
+      password: cnsd_auth_pw
+      driver-class-name: oracle.jdbc.OracleDriver
+      hikari:
+        poolName: slavePool
+        maximumPoolSize: 250
+        connectionTestQuery: SELECT 1 FROM DUAL
+        minimumIdle: 10
+        idleTimeout: 60000         # 60 seconds
+        connectionTimeout: 30000   # 30 seconds
+        maxLifetime: 1800000       # 30 mins
+        auto-commit: true
+        validationTimeout: 5000  #Time to wait before validating a connection
+        leakDetectionThreshold: 2000   #Logs if a connection is held too long
+        initializationFailTimeout: 1  #Fail fast if connection cannot be established
+    write:
+      url: jdbc:oracle:thin:@localhost:1521/XEPDB1
+      username: centneosupportauth
+      password: cnsd_auth_pw
+      driver-class-name: oracle.jdbc.OracleDriver
+      hikari:
+        poolName: masterPool
+        maximumPoolSize: 250
+        connectionTestQuery: SELECT 1 FROM DUAL
+        minimumIdle: 10
+        idleTimeout: 60000         # 60 seconds
+        connectionTimeout: 30000   # 30 seconds
+        maxLifetime: 1800000       # 30 mins
+        auto-commit: true
+        validationTimeout: 5000
+        leakDetectionThreshold: 2000
+        initializationFailTimeout: 1
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.OracleDialect
+        format_sql: true
+
+  sql:
+    init:
+      mode: always
