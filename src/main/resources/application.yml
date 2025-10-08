@@ -2,7 +2,7 @@ spring:
   application:
     name: CentNeoSupportDeskAuthSvc
   profiles:
-    active: dev
+    active: prod
   mvc:
     servlet:
       path: /api
@@ -11,16 +11,35 @@ spring:
     host: localhost
     port: 6379
 
-  ldap:
-    urls: ldap://ldap.forumsys.com:389
-    base: dc=example,dc=com
-    username: cn=read-only-admin,dc=example,dc=com
-    password: password
-    user-dn-patterns: uid={0},dc=example,dc=com
+  management:
+    endpoints:
+      web:
+        exposure:
+          include: health, info, mappings
+    endpoint:
+      health:
+        show-details: always
 
-#  security:
-#    ldap:
-#      user-dn-patterns: uid={0},ou=APPSUSER
+  #  ldap:
+  #    urls: ldap://ldap.forumsys.com:389
+  #    base: dc=example,dc=com
+  #    username: cn=read-only-admin,dc=example,dc=com
+  #    password: password
+  #    user-dn-patterns: uid={0},dc=example,dc=com
+
+  ldap:
+    urls: "ldap://10.1.36.160:389"
+    base: "dc=cbi,dc=co,dc=in"
+    username: "CN=ks_nsd01,OU=APPSUSER,DC=CBI,DC=CO,DC=IN"
+    password: "Master99@"
+    #anonymous-read-only : false
+
+  #  security:
+  #    ldap:
+  #      user-search-base:  "OU=APPSUSER"
+  #      user-search-filter: "(sAMAccountName={0})"
+  #      group-search-base: "CN=ks_nsd01,OU=APPSUSER,DC=CBI,DC=CO,DC=IN"
+  #      group-search-filter: "member={0}"
 
   autoconfigure:
     exclude:
@@ -31,8 +50,8 @@ server:
 
 jwt:
   alg: RS256
-  private-key-file: file:jwt_private_key_pkcs8.pem
-  public-key-file: file:jwt_public_key.pem
+  private-key-file: classpath:keys/jwt_private_key_pkcs8.pem
+  public-key-file: classpath:keys/jwt_public_key.pem
   issuer: centneo
   access-ttl-ms: 18000000
   refresh-ttl-ms: 86400000

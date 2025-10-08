@@ -18,7 +18,7 @@ public class MfaService {
 
     public boolean verifyCode(String secret, int code) {
         GoogleAuthenticator authenticator = new GoogleAuthenticator();
-        return authenticator.authorize(secret, code);
+        return gAuth.authorize(secret, code);
     }
 
     public String getQrCodeImageUrl(String username, String secret) {
