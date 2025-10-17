@@ -14,4 +14,6 @@ public class UserPreferenceDto {
     private String journey;
 
     private String supportLevel;
+
+    private Integer branchCode;
 }

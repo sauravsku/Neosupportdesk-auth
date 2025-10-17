@@ -23,4 +23,7 @@ public class UserPreference extends BaseEntity {
 
     @Column(name = "preferences")
     private String preferences;
+
+    @Column(name = "branchCode")
+    private Integer branchCode;
 }

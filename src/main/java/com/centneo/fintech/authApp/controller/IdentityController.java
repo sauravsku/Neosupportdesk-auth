@@ -353,6 +353,7 @@ public class IdentityController {
         data.put("email", user.getEmail());
         data.put("roles", user.getRoles());
         data.put("supportLevel", user.getSupportLevel());
+        data.put("branchCode", user.getBranchCode());
 
         return ResponseEntity.ok(
                 EntityResponse.generateResponse(

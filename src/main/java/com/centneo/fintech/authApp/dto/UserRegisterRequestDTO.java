@@ -41,6 +41,8 @@ public class UserRegisterRequestDTO {
 	
 	private String mobile;
 
+	private Integer branchCode;
+
 	private List<String> roleList = new ArrayList<>();
 	/**
 	 * @return the username
@@ -203,6 +205,12 @@ public class UserRegisterRequestDTO {
 	public void setRoleList(List<String> roleList) {
 		this.roleList = roleList;
 	}
-	
-	
+
+	public Integer getBranchCode() {
+		return branchCode;
+	}
+
+	public void setBranchCode(Integer branchCode) {
+		this.branchCode = branchCode;
+	}
 }

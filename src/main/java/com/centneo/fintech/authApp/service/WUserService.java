@@ -163,6 +163,7 @@ public class WUserService implements UserDetailsService {
         target.setEntityNo(source.getEntityNo());
         target.setUsername(source.getUsername());
         target.setPassword(source.getPassword());
+        target.setBranchCode(source.getBranchCode());
         return target;
     }
 
@@ -174,11 +175,13 @@ public class WUserService implements UserDetailsService {
             user = userRepositoryReadOnly.findByUsername(username);
             user.setEmail(userPreferenceDto.getEmailId());
             user.setSupportLevel(userPreferenceDto.getSupportLevel());
+            user.setBranchCode(userPreferenceDto.getBranchCode());
             userRepository.save(user);
 
             userPreference.setUserId(user.getId());
             userPreference.setPreferences("NA");
             userPreference.setUserJourney(userPreferenceDto.getJourney());
+            userPreference.setBranchCode(userPreferenceDto.getBranchCode());
             userPreferencesRepository.save(userPreference);
         } catch (Exception e) {
             throw new RuntimeException(e);

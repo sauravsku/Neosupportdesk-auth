@@ -46,6 +46,9 @@ public class User implements Serializable, UserDetails {
     @Column(name = "supportLevel")
     private String supportLevel;
 
+    @Column(name = "branchCode")
+    private Integer branchCode;
+
     // One user can have many userRoles (join table)
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @JsonIgnore
