@@ -12,9 +12,9 @@ public interface IUserRepositoryReadOnly extends IUserRepository {
 
     //User findUserByUsernameAndPassword(String username, String password);
 
-    User findByUsername(String username);
+    User findBySsoId(String ssoId);
 
-    Optional<User> findByUsernameAndSupportLevel(String searchUser, String supportLevel);
+    Optional<User> findBySsoIdAndSupportLevel(String searchUser, String supportLevel);
 
     List<User> findAllBySupportLevel(String supportLevel);
 }

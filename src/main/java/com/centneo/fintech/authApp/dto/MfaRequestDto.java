@@ -7,7 +7,7 @@ import lombok.Setter;
 @Setter
 public class MfaRequestDto {
 
-    private String username;
+    private String ssoId;
 
     private String mfaCode;
 }

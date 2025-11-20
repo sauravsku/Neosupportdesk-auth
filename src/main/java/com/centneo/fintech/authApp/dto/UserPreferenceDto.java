@@ -7,7 +7,9 @@ import lombok.Setter;
 @Setter
 public class UserPreferenceDto {
 
-    private String username;
+    private String ssoId;
+
+    private String ssoName;
 
     private String emailId;
 

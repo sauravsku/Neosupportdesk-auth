@@ -19,7 +19,9 @@ import java.util.*;
 @ToString
 public class UserRegisterRequestDTO {
 
-	private String username;
+	private String ssoId;
+
+	private String ssoName;
 
 	private String password;
 
@@ -44,18 +46,21 @@ public class UserRegisterRequestDTO {
 	private Integer branchCode;
 
 	private List<String> roleList = new ArrayList<>();
-	/**
-	 * @return the username
-	 */
-	public String getUsername() {
-		return username;
+
+	public String getSsoId() {
+		return ssoId;
 	}
 
-	/**
-	 * @param username the username to set
-	 */
-	public void setUsername(String username) {
-		this.username = username;
+	public void setSsoId(String ssoId) {
+		this.ssoId = ssoId;
+	}
+
+	public String getSsoName() {
+		return ssoName;
+	}
+
+	public void setSsoName(String ssoName) {
+		this.ssoName = ssoName;
 	}
 
 	/**

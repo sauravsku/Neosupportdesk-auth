@@ -25,8 +25,11 @@ public class User implements Serializable, UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "username", unique = true, nullable = false)
-    private String username;
+    @Column(name = "sso_id", unique = true, nullable = false)
+    private String ssoId;
+
+    @Column(name = "sso_name", unique = true, nullable = true)
+    private String ssoName;
 
     @Transient // Do NOT persist password if you don't want
     private String password;
@@ -73,6 +76,11 @@ public class User implements Serializable, UserDetails {
     @Override
     public String getPassword() {
         return password;
+    }
+
+    @Override
+    public String getUsername() {
+        return ssoId;
     }
 
     @Override

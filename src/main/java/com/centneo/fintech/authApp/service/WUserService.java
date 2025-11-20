@@ -64,8 +64,8 @@ public class WUserService implements UserDetailsService {
     WRoleService roleService;
 
     @Override
-    public UserDetails loadUserByUsername(String username) {
-        User user = userRepositoryReadOnly.findByUsername(username);
+    public UserDetails loadUserByUsername(String ssoId) {
+        User user = userRepositoryReadOnly.findBySsoId(ssoId);
         if (user != null) {
             List<UserRole> userRoles = userRoleRepositoryReadOnly.findAllByUserId(user.getId());
 
@@ -83,12 +83,12 @@ public class WUserService implements UserDetailsService {
                     authorities
             );
         }
-        throw new UsernameNotFoundException("User not found: " + username);
+        throw new UsernameNotFoundException("User not found: " + ssoId);
     }
 
 
-    public User findByUsername(String username) {
-        return userRepositoryReadOnly.findByUsername(username);
+    public User findByUsername(String ssoId) {
+        return userRepositoryReadOnly.findBySsoId(ssoId);
     }
 
     public User createUser(UserRegisterRequestDTO request) {
@@ -161,18 +161,19 @@ public class WUserService implements UserDetailsService {
     private Object dtoMapperRequestDtoToUser(UserRegisterRequestDTO source) {
         User target = new User();
         target.setEntityNo(source.getEntityNo());
-        target.setUsername(source.getUsername());
+        target.setSsoId(source.getSsoId());
+        target.setSsoName(source.getSsoName());
         target.setPassword(source.getPassword());
         target.setBranchCode(source.getBranchCode());
         return target;
     }
 
-    public User setPreferences(String username, UserPreferenceDto userPreferenceDto) {
+    public User setPreferences(String ssoId, UserPreferenceDto userPreferenceDto) {
 
         var user = new User();
         UserPreference userPreference = new UserPreference();
         try {
-            user = userRepositoryReadOnly.findByUsername(username);
+            user = userRepositoryReadOnly.findBySsoId(ssoId);
             user.setEmail(userPreferenceDto.getEmailId());
             user.setSupportLevel(userPreferenceDto.getSupportLevel());
             user.setBranchCode(userPreferenceDto.getBranchCode());
@@ -189,11 +190,11 @@ public class WUserService implements UserDetailsService {
         return user;
     }
 
-    public ResponseEntity<ResponseDto<List<Long>>> getUserJourneyId(String username) {
+    public ResponseEntity<ResponseDto<List<Long>>> getUserJourneyId(String ssoId) {
 
         try {
             // Fetch user by username
-            User user = userRepositoryReadOnly.findByUsername(username);
+            User user = userRepositoryReadOnly.findBySsoId(ssoId);
             if (user == null) {
                 return ResponseEntity
                         .status(HttpStatus.NOT_FOUND)
@@ -257,5 +258,16 @@ public class WUserService implements UserDetailsService {
         ResponseDto responseDto = ResponseDto.builder().success(true).statusCode(200).data(userMetaDataDtos)
                 .message(userList.size() + " active users currently registered in auth svc").build();
         return ResponseEntity.ok(responseDto);
+    }
+
+    public ResponseEntity<ResponseDto> getSsoNameById(String ssoId) {
+
+        User user = userRepositoryReadOnly.findBySsoId(ssoId);
+
+        ResponseDto responseDto = ResponseDto.builder().success(true).statusCode(200).data(user.getSsoName())
+                .message(user.getSsoName() + " name fetched").build();
+        return ResponseEntity.ok(responseDto);
+
+
     }
 }

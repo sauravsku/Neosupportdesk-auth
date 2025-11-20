@@ -74,13 +74,13 @@ public class IdentityController {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            authenticationRequest.getUsername(),
+                            authenticationRequest.getSsoId(),
                             authenticationRequest.getPassword()
                     )
             );
         } catch (Exception e) {
             return EntityResponse.generateResponse(
-                    authenticationRequest.getUsername(),
+                    authenticationRequest.getSsoId(),
                     "Authentication",
                     HttpStatus.UNAUTHORIZED,
                     "Invalid credentials, please check details and try again.",
@@ -90,17 +90,17 @@ public class IdentityController {
         }
 
         // 2️⃣ Check if user exists in DB, else create
-        User user = userRepositoryReadOnly.findByUsername(authenticationRequest.getUsername());
+        User user = userRepositoryReadOnly.findBySsoId(authenticationRequest.getSsoId());
         if (user == null) {
             UserRegisterRequestDTO userRegisterRequestDTO = new UserRegisterRequestDTO();
             userRegisterRequestDTO.setEntityNo(UUID.randomUUID().toString());
-            userRegisterRequestDTO.setUsername(authenticationRequest.getUsername());
+            userRegisterRequestDTO.setSsoId(authenticationRequest.getSsoId());
             userRegisterRequestDTO.setRoleList(List.of("USER"));
             user = userService.createUser(userRegisterRequestDTO);
         }
 
         // 3️⃣ JWT Generation
-        final UserDetails userDetails = userService.loadUserByUsername(user.getUsername());
+        final UserDetails userDetails = userService.loadUserByUsername(user.getSsoId());
         final String token = jwtTokenUtil.generateAccessToken(userDetails);
         final String refreshToken = jwtTokenUtil.generateRefreshToken(userDetails);
 
@@ -127,7 +127,7 @@ public class IdentityController {
 
         return ResponseEntity.ok(
                 EntityResponse.generateResponse(
-                        authenticationRequest.getUsername(),
+                        authenticationRequest.getSsoId(),
                         "Authentication successful",
                         HttpStatus.OK,
                         new AuthenticationResponse(token, refreshToken),
@@ -186,8 +186,8 @@ public class IdentityController {
 
     // ====== MFA REGISTER ======
     @PostMapping("/mfa/register")
-    public ResponseEntity<?> registerMfa(@RequestParam String username) {
-        User user = userRepositoryReadOnly.findByUsername(username);
+    public ResponseEntity<?> registerMfa(@RequestParam String ssoId) {
+        User user = userRepositoryReadOnly.findBySsoId(ssoId);
 
         if (user.isMfaRegistered()) {
             return ResponseEntity.ok().body(Map.of(
@@ -202,7 +202,7 @@ public class IdentityController {
         user.setMfaSecret(secret);
         userRepository.save(user);
 
-        String qrCodeUrl = mfaService.getQrCodeImageUrl(username, secret);
+        String qrCodeUrl = mfaService.getQrCodeImageUrl(ssoId, secret);
 
         return ResponseEntity.ok(Map.of(
                 "qrCodeUrl", qrCodeUrl,
@@ -214,7 +214,7 @@ public class IdentityController {
     // ====== MFA VERIFY ======
     @PostMapping("/mfa/verify")
     public ResponseEntity<?> verifyMfa(@RequestBody MfaRequestDto mfaRequestDto) {
-        User user = userRepositoryReadOnly.findByUsername(mfaRequestDto.getUsername());
+        User user = userRepositoryReadOnly.findBySsoId(mfaRequestDto.getSsoId());
 
         boolean isCodeValid = mfaService.verifyCode(user.getMfaSecret(), Integer.parseInt(mfaRequestDto.getMfaCode()));
 
@@ -236,7 +236,7 @@ public class IdentityController {
     @PostMapping("register")
     public ResponseEntity<Object> register(@RequestBody UserRegisterRequestDTO request){
         request.setPassword(null);
-        return EntityResponse.generateResponse(request.getUsername(), "Register User", HttpStatus.OK, userService.createUser(request),
+        return EntityResponse.generateResponse(request.getSsoId(), "Register User", HttpStatus.OK, userService.createUser(request),
                 false, false);
     }
 
@@ -334,7 +334,7 @@ public class IdentityController {
                     ));
         }
 
-        User user = userRepositoryReadOnly.findByUsername(userDetails.getUsername());
+        User user = userRepositoryReadOnly.findBySsoId(userDetails.getUsername());
         if (user == null) {
             return ResponseEntity.status(HttpStatus.OK)
                     .body(EntityResponse.generateResponse(
@@ -349,7 +349,7 @@ public class IdentityController {
 
         // Prepare real JSON object
         Map<String, Object> data = new HashMap<>();
-        data.put("username", user.getUsername());
+        data.put("username", user.getSsoId());
         data.put("email", user.getEmail());
         data.put("roles", user.getRoles());
         data.put("supportLevel", user.getSupportLevel());
@@ -357,7 +357,7 @@ public class IdentityController {
 
         return ResponseEntity.ok(
                 EntityResponse.generateResponse(
-                        user.getUsername(),
+                        user.getSsoId(),
                         "User authenticated",
                         HttpStatus.OK,
                         data,
@@ -375,7 +375,7 @@ public class IdentityController {
 
         if (authResponse.getStatusCode() != HttpStatus.OK) {
             return EntityResponse.generateResponse(
-                    userPreferenceDto.getUsername(),
+                    userPreferenceDto.getSsoId(),
                     "User not authenticated",
                     HttpStatus.UNAUTHORIZED,
                     null,
@@ -391,7 +391,7 @@ public class IdentityController {
         var userDataObj = authMap.get("body");
         if (!(userDataObj instanceof Map)) {
             return EntityResponse.generateResponse(
-                    userPreferenceDto.getUsername(),
+                    userPreferenceDto.getSsoId(),
                     "Invalid user data",
                     HttpStatus.BAD_REQUEST,
                     null,
@@ -402,11 +402,11 @@ public class IdentityController {
 
         @SuppressWarnings("unchecked")
         Map<String, Object> userData = (Map<String, Object>) userDataObj;
-        String username = (String) userData.get("username");
+        String ssoId = (String) userData.get("username");
 
-        if (username == null || username.isBlank()) {
+        if (ssoId == null || ssoId.isBlank()) {
             return EntityResponse.generateResponse(
-                    userPreferenceDto.getUsername(),
+                    userPreferenceDto.getSsoId(),
                     "Invalid user data",
                     HttpStatus.BAD_REQUEST,
                     null,
@@ -416,9 +416,9 @@ public class IdentityController {
         }
 
         try {
-            User user = userService.setPreferences(username, userPreferenceDto);
+            User user = userService.setPreferences(ssoId, userPreferenceDto);
             return EntityResponse.generateResponse(
-                    user.getUsername(),
+                    user.getSsoId(),
                     "User preferences saved successfully",
                     HttpStatus.OK,
                     user,
@@ -427,7 +427,7 @@ public class IdentityController {
             );
         } catch (Exception e) {
             return EntityResponse.generateResponse(
-                    username,
+                    ssoId,
                     "Failed to save preferences: " + e.getMessage(),
                     HttpStatus.INTERNAL_SERVER_ERROR,
                     null,
@@ -438,7 +438,7 @@ public class IdentityController {
     }
 
     @GetMapping("/getUserJourney")
-    public ResponseEntity<ResponseDto<List<Long>>> getUserJourney(@RequestParam("username") String username) {
+    public ResponseEntity<ResponseDto<List<Long>>> getUserJourney(@RequestParam("ssoId") String username) {
         try {
             // Delegate to service which returns ResponseEntity<ResponseDto<List<Long>>>
             return userService.getUserJourneyId(username);
@@ -467,9 +467,9 @@ public class IdentityController {
             if (!searchUser.isEmpty()) {
                 // safe, preserves insertion order, merges duplicates by keeping the first value
                 Map<String, String> searchRes = userList.stream()
-                        .filter(u -> u != null && u.getUsername() != null && searchUser != null)
+                        .filter(u -> u != null && u.getSsoId() != null && searchUser != null)
                         .map(u -> new AbstractMap.SimpleEntry<>(
-                                u.getUsername().trim(),
+                                u.getSsoId().trim(),
                                 u.getSupportLevel() == null
                                         ? ""
                                         : SupportLevelEnum.fromLabel(u.getSupportLevel()).name()  // convert to enum name
@@ -493,7 +493,7 @@ public class IdentityController {
 
             Map<String, String> getAllUsers = userList.stream()
                     .collect(Collectors.toMap(
-                            User::getUsername,                           // key = username
+                            User::getSsoId,                           // key = username
                             user -> SupportLevelEnum.fromLabel(user.getSupportLevel()).name(), // value
                             (existing, replacement) -> existing,         // on duplicate key, keep existing
                             LinkedHashMap::new                           // preserve order
@@ -536,6 +536,16 @@ public class IdentityController {
 
         try {
             return userService.getAllActiveSupportUsers();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @GetMapping("getSsoName")
+    public ResponseEntity<ResponseDto> getSsoName(@RequestParam("ssoId") String ssoId) {
+
+        try {
+            return userService.getSsoNameById(ssoId);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

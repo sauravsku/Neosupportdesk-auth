@@ -12,24 +12,24 @@ public class AuthenticationRequest implements Serializable {
 
 	private static final long serialVersionUID = 5926468583005150707L;
 
-	private String username;
+	private String ssoId;
 	private String password;
 	
 	public AuthenticationRequest() {
 		
 	}
 	
-	public AuthenticationRequest(String username, String password) {
-		this.setUsername(username);
+	public AuthenticationRequest(String ssoId, String password) {
+		this.setSsoId(ssoId);
 		this.setPassword(password);
 	}
 	
-	public String getUsername() {
-		return username;
+	public String getSsoId() {
+		return ssoId;
 	}
 
-	public void setUsername(String username) {
-		this.username = username;
+	public void setSsoId(String username) {
+		this.ssoId = username;
 	}
 
 	public String getPassword() {
